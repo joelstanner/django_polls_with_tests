@@ -8,25 +8,27 @@ import datetime
 class PollsViewsTest(TestCase):
     """Define the various view tests for the polls app."""
 
+    def setup(self):
+        from polls.models import Question
+        Question.objects.create(question_text="test 1", pub_date=timezone.now())
+        Question.objects.create(question_text="test 2", pub_date=timezone.now())
+        self.client = Client()
+
     def test_index_view_correct(self):
-        c = Client()
-        response = c.get('/polls/')
+        response = self.client.get('/polls/')
         assert response.content.decode() == "Hello, world. You're at the polls index."  # NOQA
 
     def test_detail_view(self):
-        c = Client()
-        response = c.get('/polls/1/')
+        response = self.client.get('/polls/1/')
         assert response.content.decode() == "You're looking at question 1."
 
     def test_results_view(self):
-        c = Client()
-        response = c.get('/polls/1/results/')
+        response = self.client.get('/polls/1/results/')
         expected = "You're looking at the results of question 1."
         assert response.content.decode() == expected
 
     def test_vote_view(self):
-        c = Client()
-        response = c.get('/polls/1/vote/')
+        response = self.client.get('/polls/1/vote/')
         assert response.content.decode() == "You're voting on question 1."
 
 
