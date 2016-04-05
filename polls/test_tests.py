@@ -8,7 +8,7 @@ import datetime
 class PollsViewsTest(TestCase):
     """Define the various view tests for the polls app."""
 
-    def setup(self):
+    def setUp(self):
         from polls.models import Question
         Question.objects.create(question_text="test 1", pub_date=timezone.now())
         Question.objects.create(question_text="test 2", pub_date=timezone.now())
