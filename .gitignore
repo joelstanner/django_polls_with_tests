@@ -1,0 +1,4 @@
+.cache/
+.coverage
+db.sqlite3
+htmlcov/
