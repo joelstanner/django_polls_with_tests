@@ -74,6 +74,13 @@ class PollsModelTest(TestCase):
         assert q.was_published_recently() is True
         assert q2.was_published_recently() is False
 
+    def test_was_published_recently_with_future_q(self):
+        """Should return false for future questions"""
+        from polls.models import Question
+        time = timezone.now() + datetime.timedelta(days=30)
+        future_question = Question(pub_date=time)
+        assert future_question.was_published_recently() is False
+
     def test_str_of_question(self):
         from polls.models import Question
         q = Question(question_text="test 1", pub_date=timezone.now())
