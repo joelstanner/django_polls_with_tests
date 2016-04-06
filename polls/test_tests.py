@@ -1,7 +1,22 @@
 """Tests for django polls tutorial app."""
 from django.test import TestCase
 from django.utils import timezone
+from django.core.urlresolvers import reverse
+
+from polls.models import Question
+
 import datetime
+
+
+def create_question(question_text, days):
+    """Create a question.
+
+    Using the given `question_text` and published the
+    given number of `days` offset to now (negative for questions publised
+    in the past, positive for questions that have yet to be published).
+    """
+    time = timezone.now() + datetime.timedelta(days=days)
+    return Question.objects.create(question_text=question_text, pub_date=time)
 
 
 class PollsViewsTest(TestCase):
@@ -23,8 +38,36 @@ class PollsViewsTest(TestCase):
 # Index Tests
 
     def test_index_view_correct(self):
-        response = self.client.get('/polls/')
+        response = self.client.get(reverse('polls:index'))
         self.assertContains(response, "test 1")
+
+    def test_index_no_questions(self):
+        """If no polls are available, display appropriate message."""
+        self.question1.delete()
+        self.question2.delete()
+        response = self.client.get(reverse('polls:index'))
+        assert response.status_code == 200
+        self.assertContains(response, "No polls are available.")
+        self.assertQuerysetEqual(response.context['latest_question_list'], [])
+
+    def test_index_with_old_question(self):
+        """Questions with past dates should be visible."""
+        create_question(question_text="Past Question.", days=-30)
+        self.question1.delete()
+        self.question2.delete()
+        response = self.client.get(reverse('polls:index'))
+        self.assertQuerysetEqual(response.context['latest_question_list'],
+                                 ['<Question: Past Question.>'])
+
+    def test_index_with_only_future_question(self):
+        """Future questions should not appear on index page."""
+        create_question(question_text="Future Question.", days=30)
+        self.question1.delete()
+        self.question2.delete()
+        response = self.client.get(reverse('polls:index'))
+        self.assertContains(response, "No polls are available.",
+                            status_code=200)
+        self.assertQuerysetEqual(response.context['latest_question_list'], [])
 
 # Detail Tests
 
