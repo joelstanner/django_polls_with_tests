@@ -33,10 +33,13 @@ class PollsViewsTest(TestCase):
         self.assertContains(response, "test 1")
         self.assertTemplateUsed(response, 'polls/detail.html')
 
+# Results View
+
     def test_results_view(self):
         response = self.client.get('/polls/1/results/')
-        expected = "You're looking at the results of question 1."
-        assert response.content.decode() == expected
+        self.assertContains(response, "test 1")
+        self.assertContains(response, "test 2")
+        self.assertTemplateUsed(response, 'polls/results.html')
 
 # Vote Tests
 
