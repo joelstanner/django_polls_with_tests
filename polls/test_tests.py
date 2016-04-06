@@ -38,7 +38,7 @@ class PollsViewsTest(TestCase):
     def test_results_view(self):
         response = self.client.get('/polls/1/results/')
         self.assertContains(response, "test 1")
-        self.assertContains(response, "test 2")
+        self.assertContains(response, "test1 choice2")
         self.assertTemplateUsed(response, 'polls/results.html')
 
 # Vote Tests
