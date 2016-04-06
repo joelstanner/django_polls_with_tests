@@ -66,6 +66,7 @@ class PollsViewsTest(TestCase):
 class PollsModelTest(TestCase):
 
     def test_was_published_recently(self):
+        """Does the published recently filter work with current and old q's?"""
         from polls.models import Question
         q = Question(question_text="test 1", pub_date=timezone.now())
         q2 = Question(question_text="test 2",
@@ -75,7 +76,7 @@ class PollsModelTest(TestCase):
         assert q2.was_published_recently() is False
 
     def test_was_published_recently_with_future_q(self):
-        """Should return false for future questions"""
+        """Should return false for future questions."""
         from polls.models import Question
         time = timezone.now() + datetime.timedelta(days=30)
         future_question = Question(pub_date=time)
