@@ -52,6 +52,13 @@ class PollsViewsTest(TestCase):
         assert vote_count == 1
         self.assertRedirects(response, '/polls/1/results/')
 
+    def test_vote_post_error_correct(self):
+        response = self.client.post('/polls/1/vote/',
+                                    {'choice': '3'},
+                                    follow=True)
+        assert response.context['error_message'] == 'Select a valid choice.'
+        self.assertTemplateUsed(response, 'polls/detail.html')
+
 
 class PollsModelTest(TestCase):
 
