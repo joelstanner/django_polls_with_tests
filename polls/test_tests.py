@@ -14,13 +14,18 @@ class PollsViewsTest(TestCase):
         Question.objects.create(question_text="test 2", pub_date=timezone.now())
         self.client = Client()
 
+# Index Tests
+
     def test_index_view_correct(self):
         response = self.client.get('/polls/')
-        assert response.content.decode() == "Hello, world. You're at the polls index."  # NOQA
+        self.assertContains(response, "test 1")
+
+# Detail Tests
 
     def test_detail_view(self):
         response = self.client.get('/polls/1/')
-        assert response.content.decode() == "You're looking at question 1."
+        self.assertContains(response, "test 1")
+        self.assertTemplateUsed(response, 'polls/detail.html')
 
     def test_results_view(self):
         response = self.client.get('/polls/1/results/')
