@@ -9,10 +9,17 @@ class PollsViewsTest(TestCase):
     """Define the various view tests for the polls app."""
 
     def setUp(self):
-        from polls.models import Question
-        Question.objects.create(question_text="test 1", pub_date=timezone.now())
-        Question.objects.create(question_text="test 2", pub_date=timezone.now())
-        self.client = Client()
+        from polls.models import Question, Choice
+        Question.objects.create(question_text="test 1",
+                                pub_date=timezone.now())
+        Question.objects.create(question_text="test 2",
+                                pub_date=timezone.now())
+        Choice.objects.create(question_id=1, choice_text="test1 choice1")
+        Choice.objects.create(question_id=1, choice_text="test1 choice2")
+        self.choice1 = Choice.objects.first()
+        self.question1 = Question.objects.first()
+        self.choice1.save()
+        self.question1.save()
 
 # Index Tests
 
@@ -32,10 +39,18 @@ class PollsViewsTest(TestCase):
         expected = "You're looking at the results of question 1."
         assert response.content.decode() == expected
 
+# Vote Tests
+
     def test_vote_view(self):
         response = self.client.get('/polls/1/vote/')
-        assert response.content.decode() == "You're voting on question 1."
+        self.assertTemplateUsed(response, 'polls/detail.html')
 
+    def test_vote_posts(self):
+        response = self.client.post('/polls/1/vote/',
+                                    {'choice': 1},
+                                    follow=True)
+        vote_count = self.choice1.votes
+        assert vote_count == 1
 
 class PollsModelTest(TestCase):
 
