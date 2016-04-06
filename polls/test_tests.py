@@ -1,6 +1,5 @@
 """Tests for django polls tutorial app."""
 from django.test import TestCase
-from django.test import Client
 from django.utils import timezone
 import datetime
 
@@ -9,17 +8,17 @@ class PollsViewsTest(TestCase):
     """Define the various view tests for the polls app."""
 
     def setUp(self):
-        from polls.models import Question, Choice
-        Question.objects.create(question_text="test 1",
-                                pub_date=timezone.now())
-        Question.objects.create(question_text="test 2",
-                                pub_date=timezone.now())
-        Choice.objects.create(question_id=1, choice_text="test1 choice1")
-        Choice.objects.create(question_id=1, choice_text="test1 choice2")
-        self.choice1 = Choice.objects.first()
-        self.question1 = Question.objects.first()
-        self.choice1.save()
-        self.question1.save()
+        from polls.models import Question
+        self.question1 = Question.objects.create(question_text="test 1",
+                                                 pub_date=timezone.now())
+        self.question2 = Question.objects.create(question_text="test 2",
+                                                 pub_date=timezone.now())
+        self.choice1 = self.question1.choice_set.create(
+            choice_text="test1 choice1"
+        )
+        self.choice2 = self.question1.choice_set.create(
+            choice_text="test1 choice2"
+        )
 
 # Index Tests
 
@@ -49,8 +48,10 @@ class PollsViewsTest(TestCase):
         response = self.client.post('/polls/1/vote/',
                                     {'choice': 1},
                                     follow=True)
-        vote_count = self.choice1.votes
+        vote_count = self.question1.choice_set.first().votes
         assert vote_count == 1
+        self.assertRedirects(response, '/polls/1/results/')
+
 
 class PollsModelTest(TestCase):
 
